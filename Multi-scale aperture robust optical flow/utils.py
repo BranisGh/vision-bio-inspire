@@ -1,8 +1,8 @@
 import numpy as np 
 
-def Local_planes_fitting(x   :np.ndnp.arrayay,
-                         y   :np.ndnp.arrayay,
-                         ts  :np.ndnp.arrayay,   ):
+def local_planes_fitting(x   :np.ndarray,
+                         y   :np.ndarray,
+                         ts  :np.ndarray,   ):
     """
     find a plane that best approximates a point 
     cloud in space by minimising the squared error 
