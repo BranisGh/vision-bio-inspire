@@ -1,9 +1,10 @@
 import numpy as np 
 from scipy.linalg import lstsq
 
-def local_planes_fitting(x   :np.ndarray,
-                         y   :np.ndarray,
-                         ts  :np.ndarray,   ):
+def local_planes_fitting(x     :np.ndarray,
+                         y     :np.ndarray,
+                         ts    :np.ndarray,
+                         event :np.uint ):
     """
     find a plane that best approximates a point 
     cloud in space by minimising the squared error 
@@ -34,17 +35,17 @@ def local_planes_fitting(x   :np.ndarray,
     
         # 1. Define a spatiotemporal neighborhood, centered on 'e' of  #down left
     # spatial dimensions L×L and duration [t + dt, t - dt].
-    index_right = np.searchsorted(ts, ts[e] + dt, side='right')
-    index_left = np.searchsorted(ts, ts[e] - dt, side='left')
+    index_right = np.searchsorted(ts, ts[event] + dt, side='right')
+    index_left = np.searchsorted(ts, ts[event] - dt, side='left')
     
-    S = np.arange(index_left, index_right, 1)
+    time_window = np.arange(index_left, index_right, 1)
 
     # Search for neighbours in the S.
-    neighborhood = S[np.where((x[e] - N <= x[S]) & 
-                                        (x[S] <= x[e] + N))[0]]
+    neighborhood = time_window[np.where((x[event] - N <= x[time_window]) & 
+                                        (x[time_window] <= x[event] + N))[0]]
     
-    neighborhood = neighborhood[np.where((y[e] - N <= y[neighborhood]) &
-                                         (y[neighborhood] <= y[e] + N))[0]]
+    neighborhood = neighborhood[np.where((y[event] - N <= y[neighborhood]) &
+                                         (y[neighborhood] <= y[event] + N))[0]]
     
         # 2. apply a least square minimization to estimate the plane
     #  fitting all events ei(pi,ti)
@@ -86,11 +87,6 @@ def local_planes_fitting(x   :np.ndarray,
 
 
 def correct_flow(x, y, t, e, Un_tab, tpast=500):
-
-    index_right = np.searchsorted(ts, ts[e] + tpast, side='right')
-    index_left = np.searchsorted(ts, ts[e] - tpast, side='left')
-    
-    S = np.arange(index_left, index_right, 1)
 
     U_means = []
     tetas_means = []
