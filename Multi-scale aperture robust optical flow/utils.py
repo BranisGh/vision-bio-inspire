@@ -82,35 +82,3 @@ def local_planes_fitting(x     :np.ndarray,
         else:
             break
     return Plane_0, new_neighborhood
-
-
-
-
-def correct_flow(x, y, t, e, Un_tab, tpast=500):
-
-    U_means = []
-    tetas_means = []
-    scale_indices = []
-    
-    for r in range(10, 100, 10):
-        indices = S[np.where((x[e] - r <= x[S]) & (x[S] <= x[e] + r))[0]]
-        indices = indices[np.where((y[e] - r <= y[indices]) & (y[indices] <= y[e] + r))[0]]
-        scale_indices.append(indices)
-        
-
-        sum_un = 0
-        sum_teta = 0
-        for i in indices:
-            sum_un += Un_tab[i,0]
-            sum_teta += Un_tab[i,1]
-
-        if len(indices) != 0:
-            U_means.append(sum_un/len(indices))
-            tetas_means.append(sum_teta/len(indices))
-        else:
-            U_means.append(0)
-            tetas_means.append(0)
-        
-    
-    sig_max = np.argmax(U_means)
-    return U_means[sig_max], tetas_means[sig_max], scale_indices[sig_max]
