@@ -10,8 +10,9 @@ from utils import plane_fitting
 
 def multi_scale_aperture_robust_optical_flow(x:np.ndarray, 
                                              y:np.ndarray, 
-                                             t:np.ndarray,
-                                             N:int=5):
+                                             ts:np.ndarray,
+                                             N:int=5, 
+                                             tpast:int=0.5):
     """
     @ parameters:
     -------------
@@ -19,6 +20,7 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         y : 
         t :
         N :
+        tpast :
     
     @ return:
     ---------
@@ -27,22 +29,22 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         c :
     """
 
-    assert x.shape == y.shape  == t.shape
+    assert x.shape == y.shape  == ts.shape
 
-    for (x_, y_, t_) in tqdm.tqdm(zip(x, y, t)):
+    for event, (x_, y_, _) in tqdm.tqdm(enumerate(zip(x, y, ts))):
         # 1. COMPUTE LOCAL FLOW (EDL):
         """
         Apply the plane fitting [8] to estimate the plane parameters 
         [a, b, c] within a neighborhood (5x5) of (x, y, t)
         """
-        (a, b, _), neighborhood = plane_fitting(x_, y_, t_)
+        (a, b, _), neighborhood = plane_fitting(x, y, ts, event)
         U_hat = np.norm(a - b)
         inliers_count = 0
         z_hat = np.sqrt(a**2 + b**2)
 
         for neighbor in neighborhood:
             t_hat = (a*x[neighbor] - x_) + (b*y[neighbor] - y_)
-            if np.abs(t[neighbor] - t_hat) < z_hat/2:
+            if np.abs(ts[neighbor] - t_hat) < z_hat/2:
                 inliers_count += 1
         
         if inliers_count >= (0.5 * N**2):
@@ -57,9 +59,12 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         on (x, y, t), σk with increasing radius and δ t(σk) ≤ tpast
         (tpast is temporal cut-off delta)
         """
-
-        if np.array_equal(Un, np.zeros(2).T):
-            for k, sigma in enumerate(S):
+        right_id = np.searchsorted(ts, ts[event] + tpast, side='right')
+        left_id = np.searchsorted(ts, ts[event] - tpast, side='left')
+        S = np.arange(left_id, right_id, 1)
+        
+        if not np.array_equal(Un, np.zeros(2).T):
+            for k in range(0, 100, 10):
                 U_mean = np.array([U_hat[k].mean(), theta[k].mean()]).T
             sigma_max = np.argmax(U_hat[k].mean())
         
