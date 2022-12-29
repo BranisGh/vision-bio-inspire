@@ -58,10 +58,8 @@ def local_planes_fitting(x     :np.ndarray,
         Plane_0, _, _, _ = np.linalg.lstsq(A, ts[neighborhood])    # coefficients
     else :
         Plane_0 = None
-    
-    if Plane_0 is None:
         return Plane_0, neighborhood
-    
+        
     # declaration of constants thresholds and 
     # set eps to some arbitrarly high value (∼ 10e6).
     th1 = 1e-5 
@@ -119,10 +117,10 @@ def visu_flow(x         :np.ndarray,
                         point in the scatterplot. This variable can be 
                         used to represent the time each point was 
                         captured using an event-driven camera.
-        EDL           : Flux local
-        ARMS          : 
-        time_delay    :
-        step_size     :
+        EDL           : local Flow
+        ARMS          : corrected local flow
+        time_delay    : time between each image (to create a video)
+        step_size     : the step of the window (number of events each time)
         
     @ return:
     ---------
@@ -137,34 +135,21 @@ def visu_flow(x         :np.ndarray,
     h = max(y) + 1
     w = max(x) + 1
     step = 0
+    # loop to the end of the flow vector
     while (ind_max < len(x)):
-        
-        EDL_im = np.zeros((w,h,3), dtype = np.uint8)
-        ARMS_im= np.zeros((w,h,3), dtype = np.uint8)
-        
+        # Create new imges to visualize
+        EDL_image = np.zeros((w,h,3), dtype = np.uint8)
+        ARMS_image= np.zeros((w,h,3), dtype = np.uint8)
+        # search for new indexes of the windows
         ind_max += step_size
+        # Create a new windows
         indices = np.arange(ind_min, ind_max)
-
+        # 
         H_EDL = np.uint16(EDL[indices,1] * 255/(2*np.pi))
         H_EDL = H_EDL[:, np.newaxis]
         H_ARMS = np.uint16(ARMS[indices,1] * 255/(2*np.pi))
         H_ARMS= H_ARMS[:, np.newaxis]
         
-        fill = 255* np.ones_like(H_EDL)
-        fill_edl = fill.copy()
-        fill_edl[np.where(H_EDL == 0)] = 0
-
-        fill_arms= fill.copy()
-        fill_arms[np.where(H_ARMS == 0)] = 0
-
-        EDL_im[x[indices], y[indices]] = np.concatenate((H_EDL,fill_edl,fill_edl), axis = 1)
-        ARMS_im[x[indices], y[indices]] = np.concatenate((H_ARMS,fill_arms,fill_arms), axis = 1)
-
-        ind_min = int (ind_max - ind_max/1.4)
-
-        EDL_im = cv.cvtColor(EDL_im, cv.COLOR_HSV2BGR)
-        ARMS_im= cv.cvtColor(ARMS_im, cv.COLOR_HSV2BGR)
-
         # nonzeros = np.array(np.where(EDL[indices,1] != 0))
         # nonzeros = nonzeros.flatten()
         # # Set up the polar plot
@@ -174,7 +159,22 @@ def visu_flow(x         :np.ndarray,
         # plt.show(block=False)
         # plt.pause(time_delay/1000)
         
-        cv.imshow("ARMS flow", ARMS_im)
-        cv.imshow("EDL flow", EDL_im)
+        fill = 255* np.ones_like(H_EDL)
+        fill_edl = fill.copy()
+        fill_edl[np.where(H_EDL == 0)] = 0
+
+        fill_arms= fill.copy()
+        fill_arms[np.where(H_ARMS == 0)] = 0
+
+        EDL_image[x[indices], y[indices]] = np.concatenate((H_EDL,fill_edl,fill_edl), axis = 1)
+        ARMS_image[x[indices], y[indices]] = np.concatenate((H_ARMS,fill_arms,fill_arms), axis = 1)
+
+        ind_min = int (ind_max - ind_max/1.4)
+
+        EDL_image = cv.cvtColor(EDL_image, cv.COLOR_HSV2BGR)
+        ARMS_image= cv.cvtColor(ARMS_image, cv.COLOR_HSV2BGR)
+        
+        cv.imshow("ARMS flow", ARMS_image)
+        cv.imshow("EDL flow", EDL_image)
         cv.waitKey(time_delay)
         # Set up the polar plot

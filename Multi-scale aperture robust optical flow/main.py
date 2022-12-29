@@ -18,10 +18,10 @@ x  = data['x'] .reshape(-1)#[:N_event_to_load]
 y  = data['y'] .reshape(-1)#[:N_event_to_load]
 
 # Choice of visualisation or flow calculation
-calulate = False
+compute = False
 nb_images_to_show = 100
 
-if calulate:
+if compute:
     # estimate the local and the corrected flow
     flow_local, corrected_flow = multi_scale_aperture_robust_optical_flow(x, y, ts)
     # Save data into data folder

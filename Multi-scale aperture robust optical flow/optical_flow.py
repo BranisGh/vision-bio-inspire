@@ -3,8 +3,6 @@ import math
 import tqdm
 from utils import local_planes_fitting
 
-
-
 def multi_scale_aperture_robust_optical_flow(x:np.ndarray, 
                                              y:np.ndarray, 
                                              ts:np.ndarray,
