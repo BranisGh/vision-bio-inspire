@@ -5,14 +5,11 @@ from utils import local_planes_fitting
 
 
 
-
-
-
 def multi_scale_aperture_robust_optical_flow(x:np.ndarray, 
                                              y:np.ndarray, 
                                              ts:np.ndarray,
-                                             N:int=5, 
-                                             tpast:int=0.5):
+                                             N:int=3, 
+                                             tpast:int=500):
     """
     @ parameters:
     -------------
@@ -30,8 +27,9 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
     """
 
     assert x.shape == y.shape  == ts.shape
-    corrected_flow = []
+    corrected_flow = np.zeros((len(x), 2))
     flow_local = np.zeros((len(x), 2))
+    ts_sec = ts*10**(-6)
     
     for event, (x_, y_, _) in tqdm.tqdm(enumerate(zip(x, y, ts))):
         # 1. COMPUTE LOCAL FLOW (EDL):
@@ -39,14 +37,17 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         Apply the plane fitting [8] to estimate the plane parameters 
         [a, b, c] within a neighborhood (5x5) of (x, y, t)
         """
-        (a, b, _), neighborhood = local_planes_fitting(x, y, ts, event)
-        U_hat = np.norm(a - b)
+        P, neighborhood = local_planes_fitting(x, y, ts_sec, event)
+        if P is None:
+            continue
+        (a, b, _) = P
+        U_hat = np.linalg.norm(a - b)
         inliers_count = 0
         z_hat = np.sqrt(a**2 + b**2)
 
         for neighbor in neighborhood:
-            t_hat = (a*x[neighbor] - x_) + (b*y[neighbor] - y_)
-            if np.abs(ts[neighbor] - t_hat) < z_hat/2:
+            t_hat = (a*(x[neighbor] - x_)) + (b*(y[neighbor] - y_))
+            if np.abs((ts_sec[neighbor] - ts_sec[event]) - t_hat) < z_hat/2:
                 inliers_count += 1
         
         if inliers_count >= (0.5 * N**2):
@@ -69,12 +70,12 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         tetas_means = []
         flow_local[event] = Un
         
-        S = range(0, 100, 10)
+        S = range(10, 100, 10)
         
         if not np.array_equal(Un, np.zeros(2).T):
             for sigma_k in S:
-                indices = time_window[np.argwhere((x[e] - sigma_k <= x[time_window]) & (x[time_window] <= x[e] + sigma_k))]
-                indices = indices[np.argwhere((y[e] - sigma_k <= y[indices]) & (y[indices] <= y[e] + sigma_k))]
+                indices = time_window[np.where((x[event] - sigma_k <= x[time_window]) & (x[time_window] <= x[event] + sigma_k))[0]]
+                indices = indices[np.where((y[event] - sigma_k <= y[indices]) & (y[indices] <= y[event] + sigma_k))[0]]
                 
                 sum_un = 0
                 sum_teta = 0
@@ -93,13 +94,7 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
                 
             # 3. UPDATE FLOW:
             bestU, bestTeta = U_means[sig_max], tetas_means[sig_max]
-            corrected_flow.append(np.array(bestU, bestTeta))
+            corrected_flow[event,:] = np.array([bestU, bestTeta])
+            
             
     return flow_local, corrected_flow
-
-        
-
-
-
-
-
