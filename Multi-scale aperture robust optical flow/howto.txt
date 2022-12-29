@@ -5,7 +5,7 @@ multi_scale_aperture_robust_optical_flow in python.
                     if True, the program will compute the local flow and the corrected flow and save it in a npy file.
                     if false, the program will visualise the flow as the attached video in this file.
 
-- optical_flow.py: This function is called if 'compute' is set to True and calculates the flow rate.
+- optical_flow.py: This function is called if 'compute' is set to True and calculates the flow.
 
 - utils.py: This file contains two functions. 
                     - local_planes_fitting: Apply plane fitting to estimate plane parameters.
