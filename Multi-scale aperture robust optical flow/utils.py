@@ -1,4 +1,5 @@
 import numpy as np 
+from scipy.linalg import lstsq
 
 def local_planes_fitting(x   :np.ndarray,
                          y   :np.ndarray,
@@ -36,18 +37,20 @@ def local_planes_fitting(x   :np.ndarray,
     index_right = np.searchsorted(ts, ts[e] + dt, side='right')
     index_left = np.searchsorted(ts, ts[e] - dt, side='left')
     
-    time_window = np.arange(index_left, index_right, 1)
+    S = np.arange(index_left, index_right, 1)
 
-    # Search for neighbours in the time_window.
-    neighborhood = time_window[np.where((x[e] - N <= x[time_window]) & 
-                                        (x[time_window] <= x[e] + N))[0]]
+    # Search for neighbours in the S.
+    neighborhood = S[np.where((x[e] - N <= x[S]) & 
+                                        (x[S] <= x[e] + N))[0]]
     
     neighborhood = neighborhood[np.where((y[e] - N <= y[neighborhood]) &
                                          (y[neighborhood] <= y[e] + N))[0]]
     
         # 2. apply a least square minimization to estimate the plane
     #  fitting all events ei(pi,ti)
-    Plane_0 = compute_lmsq(x[neighborhood], y[neighborhood], ts[neighborhood])
+    # Solve the linear matrix equation
+    Plane_0, _, _, _ = lstsq(x[neighborhood], y[neighborhood], ts[neighborhood])
+    #Plane_0 = compute_lmsq(x[neighborhood], y[neighborhood], ts[neighborhood])
     
     if Plane_0 is None:
         return None
@@ -78,3 +81,40 @@ def local_planes_fitting(x   :np.ndarray,
         else:
             break
     return Plane_0, new_neighborhood
+
+
+
+
+def correct_flow(x, y, t, e, Un_tab, tpast=500):
+
+    index_right = np.searchsorted(ts, ts[e] + tpast, side='right')
+    index_left = np.searchsorted(ts, ts[e] - tpast, side='left')
+    
+    S = np.arange(index_left, index_right, 1)
+
+    U_means = []
+    tetas_means = []
+    scale_indices = []
+    
+    for r in range(10, 100, 10):
+        indices = S[np.where((x[e] - r <= x[S]) & (x[S] <= x[e] + r))[0]]
+        indices = indices[np.where((y[e] - r <= y[indices]) & (y[indices] <= y[e] + r))[0]]
+        scale_indices.append(indices)
+        
+
+        sum_un = 0
+        sum_teta = 0
+        for i in indices:
+            sum_un += Un_tab[i,0]
+            sum_teta += Un_tab[i,1]
+
+        if len(indices) != 0:
+            U_means.append(sum_un/len(indices))
+            tetas_means.append(sum_teta/len(indices))
+        else:
+            U_means.append(0)
+            tetas_means.append(0)
+        
+    
+    sig_max = np.argmax(U_means)
+    return U_means[sig_max], tetas_means[sig_max], scale_indices[sig_max]
