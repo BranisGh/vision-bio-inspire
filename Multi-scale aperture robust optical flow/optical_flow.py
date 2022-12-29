@@ -13,9 +13,15 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
     """
     @ parameters:
     -------------
-        x : 
-        y : 
-        t :
+        x, y          : variable contains an np.arrayay of data of type float, 
+                        which represents the x-coordinate of each point 
+                        in a two-dimensional scatter plot.
+                        
+        t             : This variable contains an np.arrayay of float data, 
+                        which represents the time associated with each 
+                        point in the scatterplot. This variable can be 
+                        used to represent the time each point was 
+                        captured using an event-driven camera.
         N :
         tpast :
     

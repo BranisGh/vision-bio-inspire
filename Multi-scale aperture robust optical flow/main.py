@@ -18,8 +18,8 @@ x  = data['x'] .reshape(-1)#[:N_event_to_load]
 y  = data['y'] .reshape(-1)#[:N_event_to_load]
 
 # Choice of visualisation or flow calculation
-calulate = True
-nb_images_to_show = 50
+calulate = False
+nb_images_to_show = 100
 
 if calulate:
     # estimate the local and the corrected flow
@@ -33,7 +33,7 @@ else:
     flow_local     = np.load(os.path.join(current_path,'data', 'flow_local_out.npy'    ))
     corrected_flow = np.load(os.path.join(current_path,'data', 'corrected_flow_out.npy'))
     # Visualize the local and the corrected flow
-    visu_flow(x, y, ts, flow_local, corrected_flow, time_delay= 400, step_size = int(N_event_to_load/nb_images_to_show))
+    visu_flow(x, y, ts, flow_local, corrected_flow, time_delay= 100, step_size = int(N_event_to_load/nb_images_to_show))
 print('ok')
 
 

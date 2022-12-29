@@ -94,8 +94,44 @@ def local_planes_fitting(x     :np.ndarray,
     return Plane_0, new_neighborhood
 
 
-def visu_flow(x, y, ts, EDL, ARMS, time_delay, step_size):
-
+def visu_flow(x         :np.ndarray,
+              y         :np.ndarray,
+              ts        :np.ndarray,
+              EDL       :np.ndarray,          
+              ARMS      :np.ndarray, 
+              time_delay:int       , 
+              step_size :int       ):
+    """
+    find a plane that best approximates a point 
+    cloud in space by minimising the squared error 
+    between the points and the plane. This algorithm 
+    can be used to model a surface locally, i.e. in a 
+    restricted area around each point of the point cloud.
+    
+    @ parameters:
+    -------------
+        x, y          : variable contains an np.arrayay of data of type float, 
+                        which represents the x-coordinate of each point 
+                        in a two-dimensional scatter plot.
+                        
+        ts            : This variable contains an np.arrayay of float data, 
+                        which represents the time associated with each 
+                        point in the scatterplot. This variable can be 
+                        used to represent the time each point was 
+                        captured using an event-driven camera.
+        EDL           : Flux local
+        ARMS          : 
+        time_delay    :
+        step_size     :
+        
+    @ return:
+    ---------
+        Plane: the parameters (a, b, c) of the plane 
+        y = ax + by + t + c for each point of the scatter plot.
+        
+        neighborhood : spatiotemporal neighborhood  (5x5) of (x, y, t).
+        
+    """
     ind_min = 0
     ind_max = 0
     h = max(y) + 1
@@ -124,7 +160,7 @@ def visu_flow(x, y, ts, EDL, ARMS, time_delay, step_size):
         EDL_im[x[indices], y[indices]] = np.concatenate((H_EDL,fill_edl,fill_edl), axis = 1)
         ARMS_im[x[indices], y[indices]] = np.concatenate((H_ARMS,fill_arms,fill_arms), axis = 1)
 
-        ind_min = int (ind_max - ind_max/1.5)
+        ind_min = int (ind_max - ind_max/1.4)
 
         EDL_im = cv.cvtColor(EDL_im, cv.COLOR_HSV2BGR)
         ARMS_im= cv.cvtColor(ARMS_im, cv.COLOR_HSV2BGR)
