@@ -4,7 +4,8 @@ from scipy.linalg import lstsq
 def local_planes_fitting(x     :np.ndarray,
                          y     :np.ndarray,
                          ts    :np.ndarray,
-                         event :np.uint ):
+                         event :int       ,  
+                         dt    :int = 0.5  ):
     """
     find a plane that best approximates a point 
     cloud in space by minimising the squared error 
