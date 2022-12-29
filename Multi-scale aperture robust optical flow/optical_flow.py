@@ -1,7 +1,7 @@
 import numpy as np 
 import math
 import tqdm
-from utils import plane_fitting
+from utils import local_planes_fitting
 
 
 
@@ -39,7 +39,7 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         Apply the plane fitting [8] to estimate the plane parameters 
         [a, b, c] within a neighborhood (5x5) of (x, y, t)
         """
-        (a, b, _), neighborhood = plane_fitting(x, y, ts, event)
+        (a, b, _), neighborhood = local_planes_fitting(x, y, ts, event)
         U_hat = np.norm(a - b)
         inliers_count = 0
         z_hat = np.sqrt(a**2 + b**2)
