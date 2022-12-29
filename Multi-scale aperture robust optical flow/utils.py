@@ -92,7 +92,7 @@ def local_planes_fitting(x     :np.ndarray,
     return Plane_0, new_neighborhood
 
 
-def visu_flow(x         :np.ndarray,
+def view_flow(x         :np.ndarray,
               y         :np.ndarray,
               ts        :np.ndarray,
               EDL       :np.ndarray,          

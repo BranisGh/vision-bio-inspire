@@ -1,7 +1,7 @@
 In this file you will find an implementation of the 
 multi_scale_aperture_robust_optical_flow in python. 
 
-- main.py : To run the algorithm, you have to open this file and set the variable 'compute':
+- demo.py : To run the algorithm, you have to open this file and set the variable 'compute':
                     if True, the program will compute the local flow and the corrected flow and save it in a npy file.
                     if false, the program will visualise the flow as the attached video in this file.
 
@@ -9,7 +9,7 @@ multi_scale_aperture_robust_optical_flow in python.
 
 - utils.py: This file contains two functions. 
                     - local_planes_fitting: Apply plane fitting to estimate plane parameters.
-                                             plan parameters [a, b, c] in a neighbourhood.
-                    - visu_flow: Visulise the flow
+                                            [a, b, c] in a neighbourhood.
+                    - view_flow: Visulise the flow
 
 The results are stored in the data folder.
