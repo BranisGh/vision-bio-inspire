@@ -34,6 +34,5 @@ else:
     corrected_flow = np.load(os.path.join(current_path,'data', 'corrected_flow_out.npy'))
     # Visualize the local and the corrected flow
     visu_flow(x, y, ts, flow_local, corrected_flow, time_delay= 100, step_size = int(N_event_to_load/nb_images_to_show))
-print('ok')
 
 
