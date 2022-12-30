@@ -3,8 +3,8 @@ This work is done by :
 ALLIOUI Lounes 28612361
 GHOUL   Branis 28612738
 
-In this folder you will find an implementation of the 
-multi_scale_aperture_robust_optical_flow in python and the report in pdf.
+In this file you will find an implementation of the 
+multi_scale_aperture_robust_optical_flow in python.
 
 In the code source folder you will find : 
 
@@ -20,3 +20,6 @@ In the code source folder you will find :
                     - view_flow: Visulise the flow
 
 The results are stored in the data folder.
+
+Name 1 : ALLIOUI Lounes 28612361
+Name 2 : GHOUL   Branis 28612738
