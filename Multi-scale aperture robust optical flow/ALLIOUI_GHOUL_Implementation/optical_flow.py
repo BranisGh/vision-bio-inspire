@@ -73,11 +73,12 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
         U_means = []
         tetas_means = []
         flow_local[event] = Un
-        
+        # Create the range of sigma
         S = range(10, 100, 10)
         
         if not np.array_equal(Un, np.zeros(2).T):
             for sigma_k in S:
+                # New index for the window
                 indices = time_window[np.where((x[event] - sigma_k <= x[time_window]) & (x[time_window] <= x[event] + sigma_k))[0]]
                 indices = indices[np.where((y[event] - sigma_k <= y[indices]) & (y[indices] <= y[event] + sigma_k))[0]]
                 
@@ -86,14 +87,14 @@ def multi_scale_aperture_robust_optical_flow(x:np.ndarray,
                 for i in indices:
                     sum_un += flow_local[i,0]
                     sum_teta += flow_local[i,1]
-
+                # Estimate the mean of Un
                 if len(indices) != 0:
                     U_means.append(sum_un/len(indices))
                     tetas_means.append(sum_teta/len(indices))
                 else:
                     U_means.append(0)
                     tetas_means.append(0)
-                    
+                # Find the index of the max of mean(Un)
                 sig_max = np.argmax(U_means)
                 
             # 3. UPDATE FLOW:

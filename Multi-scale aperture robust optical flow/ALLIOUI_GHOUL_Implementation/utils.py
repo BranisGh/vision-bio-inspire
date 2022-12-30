@@ -122,16 +122,12 @@ def view_flow(x         :np.ndarray,
         time_delay    : time between each image (to create a video)
         step_size     : the step of the window (number of events each time)
         
-    @ return:
-    ---------
-        Plane: the parameters (a, b, c) of the plane 
-        y = ax + by + t + c for each point of the scatter plot.
-        
-        neighborhood : spatiotemporal neighborhood  (5x5) of (x, y, t).
         
     """
+    # Set the index of the window
     ind_min = 0
     ind_max = 0
+    # Find the dimension of the showed images
     h = max(y) + 1
     w = max(x) + 1
     step = 0
@@ -144,7 +140,7 @@ def view_flow(x         :np.ndarray,
         ind_max += step_size
         # Create a new windows
         indices = np.arange(ind_min, ind_max)
-        # 
+        # Recuperate the EDL and ARMS flow
         H_EDL = np.uint16(EDL[indices,1] * 255/(2*np.pi))
         H_EDL = H_EDL[:, np.newaxis]
         H_ARMS = np.uint16(ARMS[indices,1] * 255/(2*np.pi))
@@ -166,15 +162,19 @@ def view_flow(x         :np.ndarray,
         fill_arms= fill.copy()
         fill_arms[np.where(H_ARMS == 0)] = 0
 
+        # Fill the EDL and ARMS images
         EDL_image[x[indices], y[indices]] = np.concatenate((H_EDL,fill_edl,fill_edl), axis = 1)
         ARMS_image[x[indices], y[indices]] = np.concatenate((H_ARMS,fill_arms,fill_arms), axis = 1)
 
+        # Update the index for a new window
         ind_min = int (ind_max - ind_max/1.4)
 
+        # Create an image with OpenCV
         EDL_image = cv.cvtColor(EDL_image, cv.COLOR_HSV2BGR)
         ARMS_image= cv.cvtColor(ARMS_image, cv.COLOR_HSV2BGR)
         
+        # Show images
         cv.imshow("ARMS flow", ARMS_image)
         cv.imshow("EDL flow", EDL_image)
+        # Wait a delay before the new images in the loop
         cv.waitKey(time_delay)
-        # Set up the polar plot
